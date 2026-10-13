@@ -3,22 +3,21 @@ services:
     image: postgres:17
     restart: unless-stopped
     ports: 
-      - "5432:5432"
+      - "${DATABASE_PORT}:5432" # host:container
     volumes:
-      - db_data:/var/lib/postgresql/data,
+      - db_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ${POSTGRES_USER},
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD},
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin_web
+    image: dpage/pgadmin4:9.18.0
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
@@ -35,16 +34,34 @@ services:
     image: redis:7
     restart: unless-stopped
     ports: 
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
 
   rabbitmq: 
     image: rabbitmq:4-management
+    hostname: rabbitmq  # data dir is tied to the node name
     restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_PORT}:5672"
+      - "15672:15672" # management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      retries: 5
 
 
 volumes:
-  db_data: 
-  pgadmin_data: 
+  db_data:
+  pgadmin_data:
+  redis_data:
+  rabbitmq_data:
