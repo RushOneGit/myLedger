@@ -1,0 +1,22 @@
+{
+  "name": "myledger",
+  "private": true,
+  "workspaces": [
+    "server"
+  ],
+  "engines": {
+    "node": ">=22.22"
+  },
+  "scripts": {
+    "dev:server": "npm run start:dev -w server",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  }
+}
