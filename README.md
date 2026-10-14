@@ -39,3 +39,23 @@ Generate a new feature with `npx nest g resource modules/<name>` from `server/`.
 
 Scaffold it into `client/`, add `"client"` to `workspaces` in the root `package.json`,
 and proxy `/api` to `http://localhost:3000` in its Vite config.
+
+## Work with migrations
+
+Lists migrations: [X] applied, [ ] not applied
+
+```sh
+npm run migration:show
+```
+
+Create clean migration:
+
+```sh
+npm run migration:create --name=create-empty-file
+```
+
+Example for migration:generate:
+
+```sh
+npm run migration:generate --name=create-user
+```
