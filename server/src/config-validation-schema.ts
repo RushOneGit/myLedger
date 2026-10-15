@@ -1,6 +1,8 @@
 import JOI from 'joi';
+import { EnvironmentEnum } from './enums';
 
 export const configValidationSchema = JOI.object({
+  NODE_ENV: JOI.string().valid(EnvironmentEnum).default(EnvironmentEnum.Dev),
   APP_PORT: JOI.number().port().required(),
   DATABASE_HOST: JOI.string().hostname().required(),
   DATABASE_USER: JOI.string().required(),
