@@ -5,6 +5,7 @@ import { configValidationSchema } from './config-validation-schema';
 import { HealthModule } from './modules/health/health.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { UserModule } from './modules/user/user.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserModule } from './modules/user/user.module';
     DatabaseModule,
     HealthModule,
     UserModule,
+    RedisModule,
   ],
 })
 export class AppModule {}
