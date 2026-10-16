@@ -5,7 +5,10 @@ import { configValidationSchema } from './config-validation-schema';
 import { HealthModule } from './modules/health/health.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { UserModule } from './modules/user/user.module';
-import { RedisModule } from './redis/redis.module';
+import { RedisModule } from './common/redis/redis.module';
+import { APP_FILTER } from '@nestjs/core';
+import { CatchEverythingFilter } from './common/filters/catch-everything.filter';
+import { CustomLoggerModule } from './common/logger/custom-logger.module';
 
 @Module({
   imports: [
@@ -18,6 +21,13 @@ import { RedisModule } from './redis/redis.module';
     HealthModule,
     UserModule,
     RedisModule,
+    CustomLoggerModule,
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: CatchEverythingFilter,
+    },
   ],
 })
 export class AppModule {}
