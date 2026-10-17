@@ -7,6 +7,15 @@
   "engines": {
     "node": ">=22.22"
   },
+  "lint-staged": {
+    "server/**/*.{ts,mts,mjs,js}": [
+      "eslint --fix --config server/eslint.config.mjs",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
   "scripts": {
     "dev:server": "npm run start:dev -w server",
     "build": "npm run build --workspaces --if-present",
@@ -14,9 +23,12 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.4.2"
   }
 }
