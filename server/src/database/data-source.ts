@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { join } from 'path';
 import 'dotenv/config';
+import { ReadableNamingStrategy } from './naming.strategy';
 
 export default new DataSource({
   type: 'postgres',
@@ -11,5 +12,6 @@ export default new DataSource({
   database: process.env.DATABASE_NAME,
   entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
   migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
+  namingStrategy: new ReadableNamingStrategy(),
   synchronize: false,
 });

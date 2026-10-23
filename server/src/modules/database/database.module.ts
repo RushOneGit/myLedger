@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { ReadableNamingStrategy } from '../../database/naming.strategy';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
         password: config.get('DATABASE_PASSWORD'),
         database: config.get('DATABASE_NAME'),
         autoLoadEntities: true, // tells NestJS to automatically collect all the entities you register via TypeOrmModule.forFeature([...])
+        namingStrategy: new ReadableNamingStrategy(), // keep in sync with src/database/data-source.ts
         synchronize: false, // ⚠️ never true — schema changes ONLY through migrations
       }),
     }),
