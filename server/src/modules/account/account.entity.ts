@@ -70,17 +70,17 @@ export class AccountEntity {
   })
   currency: CurrencyEntity;
 
-  @CreateDateColumn({
-    name: 'created_at',
-  })
-  createdAt: Date;
-
   @Column({
     name: 'archived_flag',
     type: 'boolean',
     default: false,
   })
   archivedFlag: boolean;
+
+  @CreateDateColumn({
+    name: 'created_at',
+  })
+  createdAt: Date;
 
   @UpdateDateColumn({
     name: 'updated_at',
