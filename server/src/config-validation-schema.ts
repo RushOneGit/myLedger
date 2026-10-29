@@ -2,7 +2,9 @@ import JOI from 'joi';
 import { EnvironmentEnum } from './common/enums';
 
 export const configValidationSchema = JOI.object({
-  NODE_ENV: JOI.string().valid(EnvironmentEnum).default(EnvironmentEnum.Dev),
+  NODE_ENV: JOI.string()
+    .valid(...Object.values(EnvironmentEnum))
+    .default(EnvironmentEnum.Dev),
   APP_PORT: JOI.number().port().required(),
   DATABASE_HOST: JOI.string().hostname().required(),
   DATABASE_USER: JOI.string().required(),
@@ -14,4 +16,6 @@ export const configValidationSchema = JOI.object({
   RABBITMQ_PORT: JOI.number().port().required(),
   RABBITMQ_USER: JOI.string().required(),
   RABBITMQ_PASSWORD: JOI.string().required(),
+  AUTH_SECRET: JOI.string().required(),
+  AUTH_REFRESH_SECRET: JOI.string().required(),
 });

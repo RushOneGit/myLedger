@@ -27,6 +27,21 @@ export class UserEntity {
   })
   email: string;
 
+  @Column({
+    name: 'password_hash',
+    select: false,
+    nullable: true,
+  })
+  passwordHash: string;
+
+  @Column({
+    name: 'refresh_token',
+    select: false,
+    type: 'varchar',
+    nullable: true,
+  })
+  refreshToken: string | null;
+
   @CreateDateColumn({
     name: 'created_at',
   })
