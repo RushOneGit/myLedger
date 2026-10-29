@@ -11,12 +11,18 @@ export class AccountService {
     private readonly accountRepository: Repository<AccountEntity>,
   ) {}
 
-  async create(dto: CreateAccountDto): Promise<AccountEntity> {
+  async create(userId: string, dto: CreateAccountDto): Promise<AccountEntity> {
     const exists = await this.accountRepository.findOneBy({ name: dto.name });
     if (exists) {
       throw new ConflictException('Account with this name already exists');
     }
-    const account = this.accountRepository.create(dto);
+    const account = this.accountRepository.create({
+      name: dto.name,
+      type: dto.type,
+      currencyCode: dto.currencyCode,
+      archivedFlag: dto.archivedFlag,
+      userId,
+    });
     return this.accountRepository.save(account);
   }
 }

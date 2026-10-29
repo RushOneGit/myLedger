@@ -1,26 +1,18 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CustomLoggerService } from '../../common/logger/custom-logger.service';
-import { CreateUserDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
 import { UserEntity } from './user.entity';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
+@UseGuards(JwtAuthGuard)
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
-  constructor(
-    private readonly logger: CustomLoggerService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
-  @Post('create')
-  create(@Body() dto: CreateUserDto): Promise<UserEntity> {
-    return this.userService.create(dto);
+  @Get('me')
+  me(@CurrentUser() userId: string): Promise<UserEntity | null> {
+    return this.userService.findById(userId);
   }
-
-  // @Get()
-  // list() {
-  //   this.logger.log('test console-log', UserController.name);
-  //   return '';
-  // }
 }

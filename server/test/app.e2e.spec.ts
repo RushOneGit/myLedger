@@ -1,0 +1,68 @@
+import { Test } from '@nestjs/testing';
+import type { INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import type { App } from 'supertest/types.js';
+import { AppModule } from '../src/app.module';
+
+describe('App (e2e)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
+  });
+
+  it('Health live', () => {
+    return request(app.getHttpServer())
+      .get('/api/health/live')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toMatchObject({ status: 'ok', info: {}, error: {}, details: {} });
+      });
+  });
+
+  it('Health ready', () => {
+    return request(app.getHttpServer())
+      .get('/api/health/ready')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toMatchObject({
+          status: 'ok',
+          info: {
+            db: {
+              responseTime: expect.any(Number),
+              status: 'up',
+            },
+            rabbitmq: {
+              status: 'up',
+            },
+            redis: {
+              status: 'up',
+            },
+          },
+          error: {},
+          details: {
+            db: {
+              responseTime: expect.any(Number),
+              status: 'up',
+            },
+            rabbitmq: {
+              status: 'up',
+            },
+            redis: {
+              status: 'up',
+            },
+          },
+        });
+      });
+  });
+});

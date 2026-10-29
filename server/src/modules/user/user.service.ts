@@ -4,11 +4,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dtos/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { CustomLoggerService } from '../../common/logger/custom-logger.service';
+
+export type CreateUserInput = Pick<UserEntity, 'email' | 'passwordHash'>;
 
 @Injectable()
 export class UserService {
@@ -18,7 +19,7 @@ export class UserService {
     private readonly logger: CustomLoggerService,
   ) {}
 
-  async create(dto: CreateUserDto): Promise<UserEntity> {
+  async create(dto: CreateUserInput): Promise<UserEntity> {
     this.logger.log('Create new User', UserService);
 
     const exists = await this.userRepository.findOneBy({ email: dto.email });
@@ -28,12 +29,38 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async getUserByEmail(email: string): Promise<UserEntity | null> {
+  async findByEmail(email: string): Promise<UserEntity | null> {
     this.logger.log('Find user by email', UserService);
-    if (!email) new BadRequestException('Email is required');
+    if (!email) throw new BadRequestException('Email is required');
 
     const user = await this.userRepository.findOneBy({ email });
-    if (!user) new NotFoundException('User is not found');
+    if (!user) throw new NotFoundException('User is not found');
     return user;
+  }
+
+  async findByEmailWithPassword(email: string): Promise<UserEntity | null> {
+    return this.userRepository.findOne({
+      where: { email },
+      select: { id: true, email: true, passwordHash: true },
+    });
+  }
+
+  async findByIdWithRefreshToken(id: string): Promise<UserEntity | null> {
+    return this.userRepository.findOne({
+      where: { id },
+      select: { id: true, email: true, refreshToken: true },
+    });
+  }
+
+  async findById(id: string): Promise<UserEntity | null> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) throw new NotFoundException('User is not found');
+    return user;
+  }
+
+  async saveRefreshToken(id: string, refreshToken: string): Promise<void> {
+    this.logger.log('Save refresh token', UserService);
+
+    await this.userRepository.update(id, { refreshToken });
   }
 }

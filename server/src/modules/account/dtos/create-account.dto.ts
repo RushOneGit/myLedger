@@ -10,10 +10,6 @@ export class CreateAccountDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty()
-  @IsString()
-  userId: string;
-
   @ApiProperty({
     enum: AccountTypeEnum,
     enumName: 'AccountTypeEnum',

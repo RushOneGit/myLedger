@@ -1,10 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
-import { HealthCheckService, TypeOrmHealthIndicator } from '@nestjs/terminus';
+import {
+  type HealthCheckResult,
+  HealthCheckService,
+  TypeOrmHealthIndicator,
+} from '@nestjs/terminus';
 import { RedisHealthService } from './redis.health.service';
 import { RabbitMqHealthService } from './rabbitmq.health.service';
 import { ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Health')
+@SkipThrottle()
 @Controller('health')
 export class HealthController {
   constructor(
@@ -15,12 +21,12 @@ export class HealthController {
   ) {}
 
   @Get('live')
-  live() {
+  live(): Promise<HealthCheckResult> {
     return this.health.check([]);
   }
 
   @Get('ready')
-  ready() {
+  ready(): Promise<HealthCheckResult> {
     return this.health.check([
       () => this.db.pingCheck('db', { timeout: 1500 }),
       () => this.rabbit.isHealthy('rabbitmq'),
