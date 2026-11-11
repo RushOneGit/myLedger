@@ -1,31 +1,23 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { AccountTypeEnum } from '../account.entity';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class CreateAccountDto {
   @ApiProperty({
-    example: 'Cash',
+    example: 'Wallet',
   })
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ApiProperty({
-    enum: AccountTypeEnum,
-    enumName: 'AccountTypeEnum',
-    example: AccountTypeEnum.Cash,
+    example: 'UAH',
+    description: 'Code of a supported currency (e.g. UAH, USD, USDT). See GET /currencies.',
+    maxLength: 10,
   })
-  @IsEnum(AccountTypeEnum)
-  type: AccountTypeEnum;
-
-  @ApiProperty()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.toUpperCase() : value,
+  )
   @IsString()
   currencyCode: string;
-
-  @ApiProperty({
-    default: 'false',
-  })
-  @IsOptional()
-  @IsBoolean()
-  archivedFlag?: boolean = false;
 }

@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder, type OpenAPIObject } from '@nestjs/swagger';
 import { EnvironmentEnum } from './common/enums';
 import { ValidationPipe } from '@nestjs/common';
 import { CustomLoggerService } from './common/logger/custom-logger.service';
@@ -28,7 +28,7 @@ async function bootstrap(): Promise<void> {
       .setDescription('The ledger API description')
       .setVersion('1.0')
       .build();
-    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    const documentFactory = (): OpenAPIObject => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, documentFactory);
   }
 

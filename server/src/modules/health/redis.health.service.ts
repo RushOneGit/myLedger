@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { HealthIndicatorService } from '@nestjs/terminus';
+import { type HealthIndicatorResult, HealthIndicatorService } from '@nestjs/terminus';
 import Redis from 'ioredis';
 import { REDIS } from '../../common/redis/redis.module';
 
@@ -10,11 +10,12 @@ export class RedisHealthService {
     private readonly health: HealthIndicatorService,
   ) {}
 
-  async isHealthy(key: string) {
+  async isHealthy(key: string): Promise<HealthIndicatorResult> {
     const indicator = this.health.check(key);
     try {
-      const pong = await this.redis.ping(); // Redis answers "PONG"
-      return pong === 'PONG' ? indicator.up() : indicator.down({ reason: 'unexpected reply' });
+      // ioredis types ping() as Promise<'PONG'>; any failure arrives as a rejection.
+      await this.redis.ping();
+      return indicator.up();
     } catch (e) {
       return indicator.down({ message: (e as Error).message });
     }

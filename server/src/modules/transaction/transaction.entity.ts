@@ -2,6 +2,7 @@ import {
   Check,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   Index,
   JoinColumn,
@@ -68,7 +69,7 @@ export class TransactionEntity {
   @Column({
     name: 'amount',
     type: 'numeric',
-    comment: 'in account currency, e.g. 45 (UAH)',
+    comment: 'in account currency, e.g. 45 (UAH) (converted by the Bank after originalAmount)',
   })
   amount: string;
 
@@ -162,11 +163,19 @@ export class TransactionEntity {
 
   @CreateDateColumn({
     name: 'created_at',
+    type: 'timestamptz',
   })
   createdAt: Date;
 
+  @DeleteDateColumn({
+    name: 'deleted_at',
+    type: 'timestamptz',
+  })
+  deletedAt: Date;
+
   @UpdateDateColumn({
     name: 'updated_at',
+    type: 'timestamptz',
   })
   updatedAt: Date;
 }

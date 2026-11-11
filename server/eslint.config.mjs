@@ -29,10 +29,13 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-extraneous-class': ['error', { allowWithDecorator: true }],
       '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-inferrable-types': 'off',
     },
   },
   {
-    files: ['**/*.spec.ts', 'test/**/*.ts'],
+    // `**/` prefix: the pre-commit hook runs eslint from the repo root, where
+    // paths start with `server/`, so a bare `test/**` would not match.
+    files: ['**/*.spec.ts', '**/test/**/*.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',

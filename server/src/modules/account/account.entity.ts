@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -18,6 +19,10 @@ export enum AccountTypeEnum {
   Cash = 'Cash',
 }
 
+@Index('UQ_accounts_user_id_name', ['userId', 'name'], {
+  unique: true,
+  where: '"archived_flag" = false',
+})
 @Entity('accounts')
 export class AccountEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -42,6 +47,9 @@ export class AccountEntity {
     type: 'text',
   })
   name: string;
+
+  @Column({ name: 'balance', type: 'numeric', default: 0 })
+  balance: string;
 
   @Column({
     type: 'enum',
@@ -79,11 +87,13 @@ export class AccountEntity {
 
   @CreateDateColumn({
     name: 'created_at',
+    type: 'timestamptz',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
     name: 'updated_at',
+    type: 'timestamptz',
   })
   updatedAt: Date;
 }

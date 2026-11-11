@@ -1,26 +1,11 @@
-import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
-import { type INestApplication, ValidationPipe } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import request from 'supertest';
-import { type App } from 'supertest/types';
+import { type INestApplication } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
+import request from 'supertest';
+import { JwtService } from '@nestjs/jwt';
+import { type App } from 'supertest/types';
 import { UserEntity } from '../src/modules/user/user.entity';
-
-async function createApp(): Promise<INestApplication<App>> {
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-  const app = moduleRef.createNestApplication<INestApplication<App>>();
-  app.setGlobalPrefix('api');
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      disableErrorMessages: true,
-      transform: true,
-    }),
-  );
-  return app.init();
-}
+import { AccountEntity } from '../src/modules/account/account.entity';
+import { createApp } from './helpers/create-app';
 
 describe('Auth e2e', () => {
   let app: INestApplication<App>;
@@ -30,8 +15,11 @@ describe('Auth e2e', () => {
   const duplicateEmail = `user-dup-${String(Date.now())}@mail.com`;
   const password = 'test-password';
 
+  const accountName = `account-${String(Date.now())}`;
+
   let accessToken: string;
   let refreshToken: string;
+  let wrongToken: string;
 
   beforeAll(async () => {
     app = await createApp();
@@ -39,10 +27,13 @@ describe('Auth e2e', () => {
   });
 
   afterAll(async () => {
+    await app.get(DataSource).getRepository(AccountEntity).delete({ name: accountName });
+
     await app
       .get(DataSource)
       .getRepository(UserEntity)
       .delete({ email: In([email, duplicateEmail]) });
+
     await app.close();
   });
 
@@ -97,7 +88,7 @@ describe('Auth e2e', () => {
     });
 
     it('Check if user sign-in with wrong secret', async () => {
-      const wrongToken = jwt.sign({ sub: 'someone', type: 'access' }, { secret: 'wrong-secret' });
+      wrongToken = jwt.sign({ sub: 'someone', type: 'access' }, { secret: 'wrong-secret' });
       return request(app.getHttpServer())
         .get('/api/users/me')
         .set('Authorization', `Bearer ${wrongToken}`)

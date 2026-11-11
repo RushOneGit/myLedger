@@ -80,4 +80,9 @@ export class CurrencyRegistry implements OnModuleInit {
   money(amount: string, code: string): Money {
     return Money.of(amount, this.get(code));
   }
+
+  /** Exact `minuend - subtrahend` for two decimal strings in the same currency. */
+  subtract(minuend: string, subtrahend: string, code: string): Money {
+    return this.money(minuend, code).subtract(this.money(subtrahend, code));
+  }
 }
