@@ -53,7 +53,7 @@ ADR: module structure and configuration → [ ] written
   - [x] Validation: format, known currency, decimals ≤ `max_scale`
   - [x] Unit tests
 - [x] Authentication: login + tokens, global guard, closed by default
-- [ ] CRUD accounts and manual cash transactions: DTOs, pagination, filters
+- [x] CRUD accounts and manual cash transactions: DTOs, pagination, filters
 - [ ] Repository pattern: domain services don't use TypeORM directly
 - [ ] Balance = sum of transactions; save + balance update in one DB transaction
 - [ ] Transfer between own cash accounts: two records, one DB transaction, rollback on error
