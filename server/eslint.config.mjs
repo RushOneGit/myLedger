@@ -41,6 +41,8 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'off',
       // res.body and expect.any() are typed `any` by supertest/vitest.
       '@typescript-eslint/no-unsafe-assignment': 'off',
+      // Test helpers like setup() return ad-hoc objects; annotating them adds noise.
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
   eslintConfigPrettier,

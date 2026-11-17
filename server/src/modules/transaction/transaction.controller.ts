@@ -46,11 +46,11 @@ export class TransactionController {
   }
 
   @Post()
-  createCash(
+  createManual(
     @CurrentUser() userId: string,
     @Body() dto: CreateTransactionDto,
   ): Promise<TransactionEntity> {
-    return this.transactionService.createCash(userId, dto);
+    return this.transactionService.createManual(userId, dto);
   }
 
   @Put('/manual/:id')
