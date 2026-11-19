@@ -6,6 +6,7 @@ import { UserEntity } from '../src/modules/user/user.entity';
 import { AccountEntity } from '../src/modules/account/account.entity';
 import { createApp } from './helpers/create-app';
 import { createUser, type TestUser } from './helpers/create-user';
+import { expectBalanceInvariant } from './helpers/expect-balance-invariant';
 import { buildCreateTransaction } from './fixtures/transaction.fixture';
 import {
   TransactionEntity,
@@ -43,6 +44,14 @@ describe('Transactions e2e', () => {
       .send(body)
       .expect(201);
     return rs.body.id as string;
+  };
+
+  const getBalance = async (user: TestUser, id: string): Promise<string> => {
+    const rs = await request(app.getHttpServer())
+      .get(`/api/accounts/${id}`)
+      .set('Authorization', `Bearer ${user.accessToken}`)
+      .expect(200);
+    return rs.body.balance as string;
   };
 
   const list = async (
@@ -239,6 +248,59 @@ describe('Transactions e2e', () => {
         .get(`/api/transactions/${id}`)
         .set('Authorization', `Bearer ${owner.accessToken}`)
         .expect(404);
+    });
+  });
+
+  describe('Balance', () => {
+    let accountId: string;
+
+    // Exact value via the API + consistency with the transactions table via SQL.
+    const expectBalance = async (expected: string): Promise<void> => {
+      expect(await getBalance(owner, accountId)).toBe(expected);
+      await expectBalanceInvariant(app.get(DataSource), accountId);
+    };
+
+    beforeAll(async () => {
+      accountId = await createAccount(owner);
+    });
+
+    it('create → update → delete keeps balance = sum of transactions', async () => {
+      await expectBalance('0');
+
+      // Create: Expense 100 → 0 − 100
+      const txId = await createTransaction(owner, {
+        accountId,
+        operationDate: '2026-11-19T10:00:00Z',
+        amount: '100',
+        kind: TransactionKindEnum.Expense,
+      });
+      await expectBalance('-100');
+
+      // Update: Expense 100 → Income 30, delta = +30 − (−100) = +130 → −100 + 130
+      await request(app.getHttpServer())
+        .put(`/api/transactions/manual/${txId}`)
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send({
+          operationDate: '2026-11-19T11:00:00Z',
+          amount: '30',
+          kind: TransactionKindEnum.Income,
+        })
+        .expect(200);
+      await expectBalance('30');
+
+      // Delete: reverts +30 → 0 (soft-deleted row must be excluded from the sum)
+      await request(app.getHttpServer())
+        .delete(`/api/transactions/${txId}`)
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .expect(204);
+      await expectBalance('0');
+
+      // Second delete: 404 and the balance is not reverted twice
+      await request(app.getHttpServer())
+        .delete(`/api/transactions/${txId}`)
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .expect(404);
+      await expectBalance('0');
     });
   });
 });

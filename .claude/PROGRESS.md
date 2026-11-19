@@ -54,12 +54,17 @@ ADR: module structure and configuration → [ ] written
   - [x] Unit tests
 - [x] Authentication: login + tokens, global guard, closed by default
 - [x] CRUD accounts and manual cash transactions: DTOs, pagination, filters
-- [ ] Repository pattern: domain services don't use TypeORM directly
-- [ ] Balance = sum of transactions; save + balance update in one DB transaction
+- [x] Repository pattern: domain services don't use TypeORM directly
+- [x] Balance = sum of transactions; save + balance update in one DB transaction
 - [ ] Transfer between own cash accounts: two records, one DB transaction, rollback on error
 - [ ] Optimistic locking (`@VersionColumn`) on `Account`
 - [ ] Integration tests with Testcontainers: rollback, version conflict, 20 parallel requests
 - [ ] Seed script with fake demo data
+- [ ] _Nice to have, low priority, doesn't block the block:_ practise `vi.spyOn` with unit tests (plus `restoreMocks: true` in vitest config)
+  - `AuthService` with a real `JwtService`: spy on `signAsync` and check the refresh payload and `expiresIn: '7d'`; try spying on `argon2.hash` to see why ESM needs `vi.mock`
+  - `CurrencyRegistry`: `subtract()` calls `money()` twice; `onModuleInit()` calls `reload()`
+  - `CatchEverythingFilter`: `logger.error` is called only for status ≥ 500
+  - `RedisHealthService`: `ping` rejects → `down` (`new Redis({ lazyConnect: true })`)
 
 Done when: a broken rollback is caught by a test; 20 parallel updates of one account give the correct balance.
 
